@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="about_version_pref_key"
+        android:title="@string/about_version_pref_title"/>
+    <Preference
+        android:key="about_app_license_pref_key"
+        android:summary="https://www.gnu.org/licenses/gpl-3.0.txt"
+        android:title="@string/about_app_license_pref_title">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:data="https://www.gnu.org/licenses/gpl-3.0.txt"/>
+    </Preference>
+    <Preference
+        android:key="about_open_source_licenses_pref_key"
+        android:title="@string/about_open_source_licenses_pref_title"/>
+</PreferenceScreen>
