@@ -33,7 +33,7 @@ public class CityParser {
             URL url = getUrl(query);
             connection = (HttpsURLConnection) url.openConnection();
 
-            if (connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
+            if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
                 return null;
             }
 

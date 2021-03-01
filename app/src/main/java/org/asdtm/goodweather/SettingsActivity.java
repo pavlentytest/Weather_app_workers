@@ -26,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -44,6 +45,7 @@ import org.asdtm.goodweather.utils.Constants;
 import org.asdtm.goodweather.utils.LanguageUtil;
 import org.asdtm.goodweather.utils.PreferenceUtil;
 import org.asdtm.goodweather.utils.Utils;
+import org.asdtm.goodweather.worker.CurrentWeatherWorker;
 import org.asdtm.goodweather.worker.NotificationWorker;
 
 import java.util.List;
@@ -154,22 +156,26 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         boolean isEnabled = (boolean) o;
                         String intervalPref = AppPreference.getInterval(getContext());
                         long intervalMillis = Utils.intervalMillisForAlarm(intervalPref);
-                        periodicWorkRequest1 = new PeriodicWorkRequest.Builder(
-                                NotificationWorker.class,intervalMillis, TimeUnit.MILLISECONDS)
-                                .build();
-                        workManager =  WorkManager.getInstance();
-                        if(isEnabled) {
-                            Log.d("RRRR", "!!!!!");
-                            workManager.enqueue(periodicWorkRequest1);
-                            workManager.getWorkInfoByIdLiveData(periodicWorkRequest1.getId())
+
+                        if (isEnabled) {
+                            PeriodicWorkRequest saveRequest =
+                                    new PeriodicWorkRequest.Builder(NotificationWorker.class, 15, TimeUnit.MINUTES)
+                                            .build();
+                            WorkManager.getInstance().enqueueUniquePeriodicWork(
+                                    "worker",
+                                    ExistingPeriodicWorkPolicy.KEEP,
+                                    saveRequest);
+                            WorkManager.getInstance().getWorkInfoByIdLiveData(saveRequest.getId())
                                     .observeForever(new Observer<WorkInfo>() {
                                         @Override
                                         public void onChanged(@Nullable WorkInfo workInfo) {
-                                            Log.d("RRRR", "onChanged: " + workInfo.getState());
+                                            if (workInfo != null && workInfo.getState() != null ) {
+                                                Log.d("RRRR", "onChanged: " + workInfo.getState());
+                                            }
                                         }
                                     });
                         } else {
-                            workManager.cancelWorkById(periodicWorkRequest1.getId());
+                            WorkManager.getInstance().cancelUniqueWork("worker");
                         }
                         return true;
                     }
@@ -199,24 +205,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
                         Preference pref = findPreference(key);
                         String intervalPref = AppPreference.getInterval(getContext());
                         long intervalMillis = Utils.intervalMillisForAlarm(intervalPref);
-                        if(pref.isEnabled()) {
-                            if (periodicWorkRequest1 != null) {
-                                workManager.cancelWorkById(periodicWorkRequest1.getId());
-                            } else {
-                                periodicWorkRequest1 = new PeriodicWorkRequest.Builder(
-                                        NotificationWorker.class, intervalMillis, TimeUnit.MILLISECONDS)
-                                        .build();
-                                workManager =  WorkManager.getInstance();
-                                workManager.enqueue(periodicWorkRequest1);
-                                workManager.getWorkInfoByIdLiveData(periodicWorkRequest1.getId())
-                                    .observeForever(new Observer<WorkInfo>() {
-                                        @Override
-                                        public void onChanged(@Nullable WorkInfo workInfo) {
-                                            Log.d("RRRR", "onChanged: " + workInfo.getState());
-                                        }
-                                    });
-                            }
-                        }
                     }
                     break;
                 case Constants.PREF_LANGUAGE:

@@ -1,6 +1,5 @@
 package org.asdtm.goodweather;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Build;
@@ -16,14 +15,19 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.asdtm.goodweather.service.CurrentWeatherService;
+import org.asdtm.goodweather.model.Weather;
 import org.asdtm.goodweather.utils.Utils;
+import org.asdtm.goodweather.worker.CurrentWeatherWorker;
 
 public class BaseActivity extends AppCompatActivity {
 
@@ -191,7 +195,8 @@ public class BaseActivity extends AppCompatActivity {
                     mHeaderCity.setText(Utils.getCityAndCountry(this));
 
                     if (connectionDetector.isNetworkAvailableAndConnected()) {
-                        startService(new Intent(this, CurrentWeatherService.class));
+                        Log.d("FFF","!!!"+Utils.getCityAndCountry(this));
+                        //startService(new Intent(this, CurrentWeatherService.class));
                     }
                 }
                 break;

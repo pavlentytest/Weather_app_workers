@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -116,6 +118,7 @@ public class SearchActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
+            Log.d("FFF",mCity.getCityName() + ";" + mCity.getCountryCode());
             v.setBackgroundColor(Color.rgb(227, 227, 227));
             setCity(mCity);
             sendBroadcast(new Intent(Constants.ACTION_FORCED_APPWIDGET_UPDATE));
@@ -205,10 +208,10 @@ public class SearchActivity extends AppCompatActivity {
 
     private void loadLastFoundCity() {
         if (mCites.isEmpty()) {
-            String lastCity = mCityPref.getString(APP_SETTINGS_CITY, "London");
-            String lastCountry = mCityPref.getString(APP_SETTINGS_COUNTRY_CODE, "UK");
-            String lastLat = mCityPref.getString(APP_SETTINGS_LATITUDE, "51.51");
-            String lastLon = mCityPref.getString(APP_SETTINGS_LONGITUDE, "-0.13");
+            String lastCity = mCityPref.getString(APP_SETTINGS_CITY, "Moscow");
+            String lastCountry = mCityPref.getString(APP_SETTINGS_COUNTRY_CODE, "Russia");
+            String lastLat = mCityPref.getString(APP_SETTINGS_LATITUDE, "55.45");
+            String lastLon = mCityPref.getString(APP_SETTINGS_LONGITUDE, "37.37");
             CitySearch city = new CitySearch(lastCity, lastCountry, lastLat, lastLon);
             mCites.add(city);
         }

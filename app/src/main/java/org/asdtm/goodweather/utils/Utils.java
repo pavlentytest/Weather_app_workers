@@ -197,7 +197,6 @@ public class Utils {
     
     public static String getCityAndCountry(Context context) {
         SharedPreferences preferences = context.getSharedPreferences(Constants.APP_SETTINGS_NAME, 0);
-        
         if(AppPreference.isGeocoderEnabled(context)) {
             return getCityAndCountryFromGeolocation(preferences);
         } else {
@@ -206,8 +205,8 @@ public class Utils {
     }
         
     private static String getCityAndCountryFromGeolocation(SharedPreferences preferences) {
-        String geoCountryName = preferences.getString(Constants.APP_SETTINGS_GEO_COUNTRY_NAME, "Russian Federation");
-        String geoCity = preferences.getString(Constants.APP_SETTINGS_GEO_CITY, "Moscow");
+        String geoCountryName = preferences.getString(Constants.APP_SETTINGS_GEO_COUNTRY_NAME, "");
+        String geoCity = preferences.getString(Constants.APP_SETTINGS_GEO_CITY, "");
         if("".equals(geoCity)) {
             return geoCountryName;
         }

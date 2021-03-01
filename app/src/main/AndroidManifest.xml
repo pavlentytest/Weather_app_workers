@@ -84,7 +84,6 @@
                     android:scheme="file"/>
             </intent-filter>
         </activity>
-
         <receiver android:name=".widget.LessWidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>

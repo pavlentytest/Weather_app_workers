@@ -98,6 +98,12 @@ public class CurrentWeatherWorker extends Worker {
         return parseWeather(requestResult);
     }
 
+    @Override
+    public void onStopped() {
+        Log.d("RRRRRRRR", "onStopped() worker");
+        super.onStopped();
+    }
+
     public Result parseWeather(String data) {
         try {
             JSONObject jsonObject = new JSONObject(data);

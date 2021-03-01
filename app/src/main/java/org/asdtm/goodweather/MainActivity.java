@@ -43,7 +43,6 @@ import android.widget.Toast;
 
 import org.asdtm.goodweather.model.CitySearch;
 import org.asdtm.goodweather.model.Weather;
-import org.asdtm.goodweather.service.CurrentWeatherService;
 import org.asdtm.goodweather.utils.AppPreference;
 import org.asdtm.goodweather.utils.Constants;
 import org.asdtm.goodweather.utils.LanguageUtil;
@@ -88,7 +87,6 @@ public class MainActivity extends BaseActivity implements AppBarLayout.OnOffsetC
     private LocationManager locationManager;
     private SwipeRefreshLayout mSwipeRefresh;
     private Menu mToolbarMenu;
-    private BroadcastReceiver mWeatherUpdateReceiver;
 
     private String mSpeedScale;
     private String mIconWind;
@@ -163,7 +161,6 @@ public class MainActivity extends BaseActivity implements AppBarLayout.OnOffsetC
         mSpeedScale = Utils.getSpeedScale(MainActivity.this);
         Log.d("RRRR",mWeather.currentWeather.getId()+"");
 
-
         String temperature = String.format(Locale.getDefault(), "%.0f",
                 mWeather.temperature.getTemp());
         String pressure = String.format(Locale.getDefault(), "%.1f",
@@ -205,6 +202,8 @@ public class MainActivity extends BaseActivity implements AppBarLayout.OnOffsetC
     public void onResume() {
         super.onResume();
         preLoadWeather();
+        getWeatherWork();
+        Log.d("FFF","resume()");
         mAppBarLayout.addOnOffsetChangedListener(this);
     }
 
@@ -276,7 +275,8 @@ public class MainActivity extends BaseActivity implements AppBarLayout.OnOffsetC
             editor.apply();
 
             if (isNetworkAvailable) {
-                startService(new Intent(MainActivity.this, CurrentWeatherService.class));
+               // startService(new Intent(MainActivity.this, CurrentWeatherService.class));
+                 getWeatherWork();
                 sendBroadcast(new Intent(Constants.ACTION_FORCED_APPWIDGET_UPDATE));
             } else {
                 Toast.makeText(MainActivity.this, R.string.connection_not_found, Toast.LENGTH_SHORT)
@@ -459,10 +459,8 @@ public class MainActivity extends BaseActivity implements AppBarLayout.OnOffsetC
                 new OneTimeWorkRequest.Builder(CurrentWeatherWorker.class)
                         .build();
         WorkManager.getInstance().enqueue(work);
-        Log.d("RRRR","Worker before resyult!");
         WorkManager.getInstance().getWorkInfoByIdLiveData(work.getId())
                 .observe(this, info -> {
-                    Log.d("RRRR","Worker inner!");
                     if (info != null && info.getState().isFinished()) {
                         switch (info.getOutputData().getString(CurrentWeatherWorker.ACTION_WEATHER_UPDATE_RESULT)) {
                             case CurrentWeatherWorker.ACTION_WEATHER_UPDATE_OK:
@@ -534,22 +532,7 @@ public class MainActivity extends BaseActivity implements AppBarLayout.OnOffsetC
 
         mProgressDialog = new ProgressBar(MainActivity.this,null,android.R.attr.progressBarStyleHorizontal);
 
-      //  mProgressDialog.setMessage(getString(R.string.progressDialog_gps_locate));
-      //  mProgressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      //  mProgressDialog.setIndeterminate(true);
-      //  mProgressDialog.setCancelable(false);
-     /*   mProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                try {
-                    locationManager.removeUpdates(mLocationListener);
-                } catch (SecurityException e) {
-                    Log.e(TAG, "Cancellation error", e);
-                }
-            }
-        });*/
-
-      /* if (isNetworkEnabled) {
+       /* if (isNetworkEnabled) {
             Log.d("RRRR","Network!");
             networkRequestLocation();
             mProgressDialog.show();
@@ -591,20 +574,16 @@ public class MainActivity extends BaseActivity implements AppBarLayout.OnOffsetC
     }
 
     public void gpsRequestLocation() {
-        Log.d("RRRRRRR", "gps1");
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            Log.d("RRRRRRR", "gps2");
             Looper locationLooper = Looper.myLooper();
             locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, mLocationListener, locationLooper);
             final Handler locationHandler = new Handler(locationLooper);
             locationHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d("RRRRRRR", "Before gps!");
                     locationManager.removeUpdates(mLocationListener);
                     if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         Location lastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        Log.d("RRRRRRR", lastLocation.getLatitude()+ "; "+lastLocation.getLongitude());
                         if (lastLocation != null) {
                             mLocationListener.onLocationChanged(lastLocation);
                         } else {
